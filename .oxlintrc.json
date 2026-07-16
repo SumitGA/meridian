@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["import", "typescript", "react", "react-perf", "unicorn", "oxc"],
+  "categories": { "correctness": "error", "suspicious": "error" },
+  "rules": {
+    "no-restricted-imports": ["error", {
+      "patterns": [{
+        "group": ["@/features/*/*"],
+        "message": "Import a feature's public API only: @/features/<name>"
+      }]
+    }],
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}
