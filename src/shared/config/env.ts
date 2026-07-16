@@ -6,4 +6,12 @@ const schema = z.object({
   VITE_ENV: z.enum(['development', 'staging', 'production']),
 });
 
-export const env = schema.parse(import.meta.env);
+const parsed = schema.safeParse(import.meta.env);
+
+if (!parsed.success) {
+  console.error('Invalid environment variables:', parsed.error.format());
+  throw new Error('Invalid environment variables');
+} 
+
+export const env = parsed.data;
+
