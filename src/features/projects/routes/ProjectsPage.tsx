@@ -1,45 +1,58 @@
 // src/features/projects/routes/ProjectsPage.tsx
 import { useState } from 'react';
-import { useAuth } from '@/features/auth';
+import { Can, useAuth } from '@/features/auth';
 import { useProjects } from '../api/useProjects';
+import { ProjectsTable } from '../components/ProjectsTable';
+import { CreateProjectForm } from '../components/CreateProjectForm';
 import type { ProjectStatus } from '../model/types';
 
 export function ProjectsPage() {
   const { user } = useAuth();
   const [status, setStatus] = useState<ProjectStatus | undefined>(undefined);
-  const { data, isPending, isError, refetch, isFetching } = useProjects({ status });
+  const [creating, setCreating] = useState(false);
+  const { data, isPending, isError, refetch } = useProjects({ status });
 
   return (
-    <main className="p-8">
+    <main className="mx-auto max-w-5xl p-8">
       <header className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Projects</h1>
-          <p className="text-sm text-slate-600">
-            {user?.name} · {user?.role}
-          </p>
+          <p className="text-sm text-slate-600">{user?.name} · {user?.role}</p>
         </div>
-        <select
-          className="rounded border border-slate-300 px-3 py-2 text-sm"
-          value={status ?? ''}
-          onChange={(e) =>
-            setStatus((e.target.value || undefined) as ProjectStatus | undefined)
-          }
-        >
-          <option value="">All</option>
-          <option value="active">Active</option>
-          <option value="archived">Archived</option>
-        </select>
+
+        <div className="flex items-center gap-3">
+          <select
+            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            value={status ?? ''}
+            onChange={(e) =>
+              setStatus((e.target.value || undefined) as ProjectStatus | undefined)
+            }
+          >
+            <option value="">All</option>
+            <option value="active">Active</option>
+            <option value="archived">Archived</option>
+          </select>
+
+          <Can permission="project:create">
+            <button
+              onClick={() => setCreating((v) => !v)}
+              className="rounded bg-slate-900 px-4 py-2 text-sm text-white"
+            >
+              {creating ? 'Cancel' : 'New project'}
+            </button>
+          </Can>
+        </div>
       </header>
 
-      {isPending && (
-        <ul className="flex flex-col gap-2" aria-busy="true">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <li key={i} className="h-16 animate-pulse rounded bg-slate-100" />
-          ))}
-        </ul>
-      )}
+      <Can permission="project:create">
+        {creating && (
+          <div className="mb-6 rounded border border-slate-200 p-6">
+            <CreateProjectForm onSuccess={() => setCreating(false)} />
+          </div>
+        )}
+      </Can>
 
-      {isError && (
+      {isError ? (
         <div role="alert" className="rounded border border-red-200 bg-red-50 p-4">
           <p className="text-sm text-red-700">Couldn’t load projects.</p>
           <button
@@ -49,25 +62,8 @@ export function ProjectsPage() {
             Retry
           </button>
         </div>
-      )}
-
-      {data && (
-        <ul className="flex flex-col gap-2" aria-busy={isFetching}>
-          {data.items.map((p) => (
-            <li key={p.id} className="rounded border border-slate-200 p-4">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">{p.name}</span>
-                <span className="rounded bg-slate-100 px-2 py-0.5 text-xs">{p.key}</span>
-              </div>
-              <span className="text-xs text-slate-500">{p.status}</span>
-            </li>
-          ))}
-          {data.items.length === 0 && (
-            <li className="rounded border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-              No projects match this filter.
-            </li>
-          )}
-        </ul>
+      ) : (
+        <ProjectsTable projects={data?.items ?? []} isLoading={isPending} />
       )}
     </main>
   );

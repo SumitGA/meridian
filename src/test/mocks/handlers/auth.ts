@@ -6,7 +6,7 @@ import { simulate, NETWORK } from '../latency';
 
 const api = (path: string) => `${env.VITE_API_URL}${path}`;
 
-const ACCESS_TTL_MS = 10_000; // absurdly short on purpose — see below
+const ACCESS_TTL_MS = 100_000; // absurdly short on purpose — see below
 
 function issueAccessToken(userId: string): string {
   // NOT a real JWT. Opaque token; the server decides what it means.
