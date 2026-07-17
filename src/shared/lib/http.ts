@@ -3,7 +3,7 @@ import axios, {
   type AxiosInstance,
   type InternalAxiosRequestConfig,
 } from 'axios';
-import { env } from '@shared/config/env';
+import { env } from '@/shared/config/env';
 
 export const http: AxiosInstance = axios.create({
   baseURL: env.VITE_API_URL,
