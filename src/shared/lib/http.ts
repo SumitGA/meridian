@@ -1,28 +1,23 @@
+// src/shared/lib/http.ts — FULL FILE
 import axios, {
-  AxiosError,
   type AxiosInstance,
   type InternalAxiosRequestConfig,
 } from 'axios';
 import { env } from '@/shared/config/env';
+import { toAppError } from './errors';
 
 export const http: AxiosInstance = axios.create({
   baseURL: env.VITE_API_URL,
-  withCredentials: true, // send the HttpOnly refresh cookie
+  withCredentials: true,
   timeout: 15_000,
 });
 
-/**
- * The seam. `shared` defines the hole; `features/auth` fills it.
- * Nothing here knows what a "user" or a "role" is.
- */
 export interface AuthBridge {
   getAccessToken: () => string | null;
-  /** Returns a fresh access token, or null if the session is dead. */
   refresh: () => Promise<string | null>;
   onAuthFailure: () => void;
 }
 
-/** Marks a request we've already retried, so we never loop. */
 type RetriableConfig = InternalAxiosRequestConfig & { _retried?: boolean };
 
 export function installAuthInterceptors(bridge: AuthBridge): () => void {
@@ -32,16 +27,18 @@ export function installAuthInterceptors(bridge: AuthBridge): () => void {
     return config;
   });
 
-  // Single-flight refresh: 10 concurrent 401s must trigger ONE refresh call.
   let inFlight: Promise<string | null> | null = null;
 
   const resId = http.interceptors.response.use(
     (res) => res,
-    async (error: AxiosError) => {
-      const config = error.config as RetriableConfig | undefined;
+    async (error: unknown) => {
+      const appError = toAppError(error);
+      const config =
+        axios.isAxiosError(error) ? (error.config as RetriableConfig | undefined) : undefined;
 
-      if (error.response?.status !== 401 || !config || config._retried) {
-        return Promise.reject(error);
+      // Only 401 triggers the refresh dance. Everything else translates and rejects.
+      if (appError.kind !== 'unauthorized' || !config || config._retried) {
+        return Promise.reject(appError);
       }
       config._retried = true;
 
@@ -53,11 +50,16 @@ export function installAuthInterceptors(bridge: AuthBridge): () => void {
 
       if (!token) {
         bridge.onAuthFailure();
-        return Promise.reject(error);
+        return Promise.reject(appError);
       }
 
       config.headers.Authorization = `Bearer ${token}`;
-      return http(config);
+      // The retried request may itself fail — that rejection also flows through toAppError.
+      try {
+        return await http(config);
+      } catch (retryError) {
+        return Promise.reject(toAppError(retryError));
+      }
     },
   );
 

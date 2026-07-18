@@ -1,10 +1,10 @@
 // src/features/projects/components/CreateProjectForm.tsx
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { isAxiosError } from 'axios';
 import { createProjectSchema } from '../model/schemas';
 import type { CreateProjectInput } from '../model/types';
 import { useCreateProject } from '../api/useCreateProject';
+import { AppError } from '@/shared/lib/errors';
 
 interface Props {
   onSuccess?: () => void;
@@ -30,18 +30,21 @@ export function CreateProjectForm({ onSuccess }: Props) {
         onSuccess?.();
       },
       onError: (error) => {
-        // preserve on ERROR — the user's input wasn't wrong, our state was
-        if (isAxiosError(error) && error.response?.status === 409) {
-          const field = (error.response.data as { field?: string })?.field;
-          if (field === 'key') {
-            setError('key', { type: 'server', message: 'That key is already taken' });
-            return;
+      if (error instanceof AppError) {
+        // Field-level errors from conflict/validation map straight to RHF.
+        if (error.fields.length > 0) {
+          for (const f of error.fields) {
+            setError(f.field as keyof CreateProjectInput, {
+              type: 'server',
+              message: f.message,
+            });
           }
-        }
-        if (isAxiosError(error) && error.response?.status === 403) {
-          setError('root', { message: 'You don’t have permission to create projects.' });
           return;
         }
+        // Everything else → form-level root error, with a human message.
+        setError('root', { message: error.message });
+        return;
+      }
         setError('root', { message: 'Couldn’t create project. Please try again.' });
       },
     });

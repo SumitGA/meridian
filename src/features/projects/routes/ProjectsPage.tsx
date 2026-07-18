@@ -5,12 +5,14 @@ import { useProjects } from '../api/useProjects';
 import { ProjectsTable } from '../components/ProjectsTable';
 import { CreateProjectForm } from '../components/CreateProjectForm';
 import type { ProjectStatus } from '../model/types';
+import { ErrorState } from '@/shared/ui';
 
 export function ProjectsPage() {
   const { user } = useAuth();
   const [status, setStatus] = useState<ProjectStatus | undefined>(undefined);
   const [creating, setCreating] = useState(false);
-  const { data, isPending, isError, refetch } = useProjects({ status });
+  // src/features/projects/routes/ProjectsPage.tsx — update the destructure
+  const { data, isPending, isError, error, refetch } = useProjects({ status });
 
   return (
     <main className="mx-auto max-w-5xl p-8">
@@ -51,20 +53,12 @@ export function ProjectsPage() {
           </div>
         )}
       </Can>
-
       {isError ? (
-        <div role="alert" className="rounded border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-700">Couldn’t load projects.</p>
-          <button
-            onClick={() => void refetch()}
-            className="mt-2 text-sm font-medium text-red-900 underline"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorState error={error} onRetry={() => void refetch()} />
       ) : (
         <ProjectsTable projects={data?.items ?? []} isLoading={isPending} />
       )}
+
     </main>
   );
 }
