@@ -30,11 +30,11 @@ module.exports = {
       name: 'no-test-mocks-in-app-code',
       comment: 'MockConsentPage is a known temporary exception — delete with the mock.',
       severity: 'error',
-      from: { path: '^src/(features|shared|app)', pathNot: 'MockConsentPage\\.tsx$' },
+      from: { path: '^src/(features|shared|app)', pathNot: ['MockConsentPage\\.tsx$', '\\.(test|spec)\\.[tj]sx?$'] },
       to: { path: '^src/test' },
     },
     { name: 'no-cycles', severity: 'error', from: {}, to: { circular: true } },
-    { name: 'no-orphans', severity: 'warn', from: { orphan: true }, to: {} },
+    { name: 'no-orphans', severity: 'warn', from: { orphan: true , pathNot: '\\.(test|spec)\\.[tj]sx?$' }, to: {} },
   ],
   options: {
     tsConfig: { fileName: 'tsconfig.app.json' },

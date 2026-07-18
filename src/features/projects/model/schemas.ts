@@ -21,7 +21,7 @@ export const createProjectSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
   key: z
     .string()
-    .min(2)
+    .min(2, 'Key must be at least 2 characters')
     .max(5)
     .regex(/^[A-Z]+$/, 'Key must be uppercase letters only'),
 });

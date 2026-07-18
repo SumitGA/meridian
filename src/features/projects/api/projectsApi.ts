@@ -20,8 +20,8 @@ export async function fetchProjects(
 }
 
 export async function createProject(input: CreateProjectInput): Promise<Project> {
-  const res = await http.post('/projects', input);
   try {
+    const res = await http.post('/projects', input);
     return projectSchema.parse(res.data);
   } catch (err) {
     throw toAppError(err);

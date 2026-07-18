@@ -11,7 +11,10 @@
     "lint:fix": "oxlint --fix",
     "lint:arch": "depcruise src",
     "typecheck": "tsc --noEmit",
-    "check": "npm run lint && npm run typecheck && npm run lint:arch",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "check": "npm run lint && npm run typecheck && npm run lint:arch && npm run test:run",
     "arch:graph": "depcruise --output-type dot src | dot -T svg > arch.svg"
   },
   "dependencies": {
