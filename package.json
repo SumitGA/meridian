@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "oxlint",
     "preview": "vite preview",
-    "check": "oxlint .",
-    "check:fix": "oxlint . --fix"
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "lint:arch": "depcruise src",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run lint && npm run typecheck && npm run lint:arch",
+    "arch:graph": "depcruise --output-type dot src | dot -T svg > arch.svg"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

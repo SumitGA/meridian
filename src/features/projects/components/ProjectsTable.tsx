@@ -58,7 +58,7 @@ export function ProjectsTable({ projects, isLoading }: Props) {
       caption="Projects"
       isLoading={isLoading}
       emptyMessage="No projects match this filter."
-      rowActions={(project) => (
+      rowActions={() => (
         <div className="flex justify-end gap-2">
           <Can permission="project:archive">
             <button className="text-xs font-medium text-slate-600 hover:text-slate-900">

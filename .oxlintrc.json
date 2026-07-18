@@ -3,6 +3,20 @@
   "plugins": ["import", "typescript", "react", "react-perf", "unicorn", "oxc"],
   "categories": { "correctness": "error", "suspicious": "error" },
   "rules": {
+    "react/react-in-jsx-scope": "off",
+    // rowActions/cell are render props by design — that's the seam.
+    // The rule targets accidental inline components, not intentional ones.
+    "react/no-unstable-nested-components": ["error", { "allowAsProps": true }],
+
+    // `_retried` is the axios convention for interceptor metadata.
+    "no-underscore-dangle": ["error", { "allow": ["_retried"] }],
+
+    // CSS side-effect imports are how Vite works.
+    "import/no-unassigned-import": ["error", { "allow": ["**/*.css"] }],
+
+    // axios default export is correct usage.
+    "import/no-named-as-default-member": "off",
+
     "no-restricted-imports": ["error", {
       "patterns": [{
         "group": ["@/features/*/*"],

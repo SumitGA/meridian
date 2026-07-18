@@ -1,11 +1,12 @@
-import type { Role } from '@/features/auth';
+
+type MockRole = 'admin' | 'manager' | 'user';
 
 export interface MockUser {
     id: string;
     email: string;
     password: string;
     name: string;
-    role: Role;
+    role: MockRole;
 }
 
 export interface MockProject {
@@ -15,6 +16,13 @@ export interface MockProject {
     status: 'active' | 'archived';
     ownerId: string;
     createdAt: string;
+}
+
+export interface AuthCodeRecord {
+  userId: string;
+  challenge: string;
+  redirectUri: string;
+  expiresAt: number;
 }
 
 export const users: MockUser[] = [
@@ -31,3 +39,33 @@ export const projects: MockProject[] = [
 
 export const refreshTokens = new Map<string, { userId: string; family: string }>();
 export const revokedFamilies = new Set<string>();
+
+/**
+ * MSW mock state lives in page memory, but OAuth is built on full-page
+ * redirects — so this must survive one. Real providers keep codes server-side.
+ * DEV ONLY.
+ */
+const CODES_KEY = 'meridian.mock.authCodes';
+
+export const authCodes = {
+  set(code: string, record: AuthCodeRecord): void {
+    const all = this.readAll();
+    all[code] = record;
+    sessionStorage.setItem(CODES_KEY, JSON.stringify(all));
+  },
+  get(code: string): AuthCodeRecord | undefined {
+    return this.readAll()[code];
+  },
+  delete(code: string): void {
+    const all = this.readAll();
+    delete all[code];
+    sessionStorage.setItem(CODES_KEY, JSON.stringify(all));
+  },
+  readAll(): Record<string, AuthCodeRecord> {
+    try {
+      return JSON.parse(sessionStorage.getItem(CODES_KEY) ?? '{}') as Record<string, AuthCodeRecord>;
+    } catch {
+      return {};
+    }
+  },
+};

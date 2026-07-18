@@ -18,3 +18,10 @@ export const authResponseSchema = z.object({
   accessToken: z.string().min(1),
   user: userSchema,
 });
+
+/** Identical shape to a password login. Google is just another proof of identity. */
+export const oauthExchangeRequestSchema = z.object({
+  code: z.string().min(1),
+  codeVerifier: z.string().min(43).max(128),
+  redirectUri: z.string().url(),
+});
