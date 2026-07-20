@@ -37,6 +37,8 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   ],
 
   user: ['project:view', 'member:view'],
+
+  auditor: ['project:view', 'member:view'],
 };
 
 export function permissionsFor(role: Role): ReadonlySet<Permission> {
