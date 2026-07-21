@@ -24,7 +24,7 @@ function readAccessToken(req: Request): { userId: string } | null {
   return { userId };
 }
 
-function issueRefreshToken(userId: string, family = crypto.randomUUID()): string {
+function issueRefreshToken(userId: string, family: string = crypto.randomUUID()): string {
   const token = crypto.randomUUID();
   refreshTokens.set(token, { userId, family });
   return token;
@@ -100,7 +100,7 @@ export const authHandlers = [
 
     // ROTATE: old token dies now.
     refreshTokens.delete(token);
-    const next = issueRefreshToken(record.userId, record.family);
+    const next = issueRefreshToken(record.userId, String(record.family));
 
     const user = users.find((u) => u.id === record.userId);
     if (!user) return HttpResponse.json({ message: 'No session' }, { status: 401 });
