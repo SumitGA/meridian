@@ -2,3 +2,4 @@
 export { DataTable } from './DataTable';
 export type { Column, DataTableProps } from './DataTable';
 export { ErrorState } from './ErrorState';
+export { VirtualList } from './VirtualList';

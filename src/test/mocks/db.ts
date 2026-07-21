@@ -69,3 +69,26 @@ export const authCodes = {
     }
   },
 };
+
+// const ADJECTIVES = ['Apollo', 'Billing', 'Legacy', 'Quantum', 'Nimbus', 'Vertex', 'Atlas', 'Zephyr'];
+// const NOUNS = ['Platform', 'Rewrite', 'Migration', 'Engine', 'Pipeline', 'Gateway', 'Service', 'Core'];
+
+// function generateProjects(count: number): MockProject[] {
+//   const out: MockProject[] = [];
+//   for (let i = 0; i < count; i++) {
+//     const adj = ADJECTIVES[i % ADJECTIVES.length]!;
+//     const noun = NOUNS[Math.floor(i / ADJECTIVES.length) % NOUNS.length]!;
+//     out.push({
+//       id: `proj-${i.toString().padStart(6, '0')}`,
+//       name: `${adj} ${noun} ${i}`,
+//       key: `P${i.toString().padStart(4, '0')}`,
+//       status: i % 5 === 0 ? 'archived' : 'active',
+//       ownerId: `user-${i % 3}`,
+//       createdAt: new Date(Date.now() - i * 86_400_000).toISOString(),
+//     });
+//   }
+//   return out;
+// }
+
+// // Toggle scale here. Start at 50_000 to feel the pain.
+// export const projects: MockProject[] = generateProjects(200);
