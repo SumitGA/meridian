@@ -1,8 +1,8 @@
 // src/features/projects/components/ProjectsTable.tsx
 import dayjs from 'dayjs';
-import { Can } from '@/features/auth';
 import { DataTable, type Column } from '@/shared/ui';
 import type { Project } from '../model/types';
+import { ProjectRowActions } from './ProjectRowActions';
 
 const columns: readonly Column<Project>[] = [
   {
@@ -58,20 +58,7 @@ export function ProjectsTable({ projects, isLoading }: Props) {
       caption="Projects"
       isLoading={isLoading}
       emptyMessage="No projects match this filter."
-      rowActions={() => (
-        <div className="flex justify-end gap-2">
-          <Can permission="project:archive">
-            <button className="text-xs font-medium text-slate-600 hover:text-slate-900">
-              Archive
-            </button>
-          </Can>
-          <Can permission="project:delete">
-            <button className="text-xs font-medium text-red-600 hover:text-red-800">
-              Delete
-            </button>
-          </Can>
-        </div>
-      )}
+      rowActions={(project) => <ProjectRowActions project={project} />}
     />
   );
 }

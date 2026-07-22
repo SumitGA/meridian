@@ -4,3 +4,4 @@ export { ProjectsTable } from './components/ProjectsTable';
 export { useProjects } from './api/useProjects';
 export { useCreateProject } from './api/useCreateProject';
 export type { Project, ProjectStatus, CreateProjectInput } from './model/types';
+export { useCanEditProject } from './hooks/useCanEditProject';
