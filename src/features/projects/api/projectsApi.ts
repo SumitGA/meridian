@@ -27,3 +27,12 @@ export async function createProject(input: CreateProjectInput): Promise<Project>
     throw toAppError(err);
   }
 }
+
+export async function bulkArchiveProjects(ids: string[]): Promise<{ archived: string[] }> {
+  try {
+    const res = await http.patch('/projects/bulk-archive', { ids });
+    return res.data as { archived: string[] };
+  } catch (err) {
+    throw toAppError(err);
+  }
+}

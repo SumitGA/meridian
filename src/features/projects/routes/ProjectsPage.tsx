@@ -1,11 +1,14 @@
 // src/features/projects/routes/ProjectsPage.tsx
 import { useState } from 'react';
+import { useEffect } from 'react';
+import { BulkActionBar } from '../components/BulkActionBar';
 import { Can, useAuth } from '@/features/auth';
 import { useProjects } from '../api/useProjects';
-import { ProjectsTable } from '../components/ProjectsTable';
 import { CreateProjectForm } from '../components/CreateProjectForm';
 import type { ProjectStatus } from '../model/types';
 import { ErrorState } from '@/shared/ui';
+import { SelectableProjectsTable } from '../components/SelectableProjectsTable';
+import { useSelectionStore } from '../stores/selectionStore';
 
 export function ProjectsPage() {
   const { user } = useAuth();
@@ -13,6 +16,13 @@ export function ProjectsPage() {
   const [creating, setCreating] = useState(false);
   // src/features/projects/routes/ProjectsPage.tsx — update the destructure
   const { data, isPending, isError, error, refetch } = useProjects({ status });
+  const clearSelection = useSelectionStore((s) => s.clear);
+
+  // Clear selection when the filter change - selected rows may no longer be visible
+
+  useEffect(() => {
+    clearSelection();
+  }, [status, clearSelection]);
 
   return (
     <main className="mx-auto max-w-5xl p-8">
@@ -53,10 +63,11 @@ export function ProjectsPage() {
           </div>
         )}
       </Can>
+      <BulkActionBar />
       {isError ? (
         <ErrorState error={error} onRetry={() => void refetch()} />
       ) : (
-        <ProjectsTable projects={data?.items ?? []} isLoading={isPending} />
+        <SelectableProjectsTable projects={data?.items ?? []} isLoading={isPending} />
       )}
 
     </main>
